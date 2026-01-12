@@ -2,22 +2,24 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building the application...'
-                echo 'Hello World welcome'
+                echo 'Checking out source code...'
+                checkout scm
             }
         }
 
-        stage('Test') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Running tests...'
+                echo 'Building Docker image...'
+                sh 'docker build -t dockerimage:latest .'
             }
         }
 
-        stage('Deploy') {
+        stage('Run Docker Container') {
             steps {
-                echo 'Deploying application...'
+                echo 'Running Docker container...'
+                sh 'docker run --rm dockerimage:latest'
             }
         }
     }
