@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Pull Nexus Image') {
+            steps {
+                sh 'docker pull sonatype/nexus3'
+            }
+        }
+
+        stage('Run Nexus Container') {
+            steps {
+                sh '''
+                docker run -d \
+                  --name nexus \
+                  -p 8081:8081 \
+                  -v nexus-data:/nexus-data \
+                  --restart unless-stopped \
+                  sonatype/nexus3
+                '''
+            }
+        }
+
+        stage('Verify Nexus') {
+            steps {
+                sh '''
+                sleep 60
+                curl -I http://localhost:8081
+                '''
+            }
+        }
+    }
+}
