@@ -8,18 +8,21 @@ pipeline {
             }
         }
 
-        stage('Run Nexus Container') {
-            steps {
-                sh '''
-                docker run -d \
-                  --name nexus \
-                  -p 8081:8081 \
-                  -v nexus-data:/nexus-data \
-                  --restart unless-stopped \
-                  sonatype/nexus3
-                '''
-            }
-        }
+       stage('Run Nexus Container') {
+    steps {
+        sh '''
+        docker rm -f nexus || true
+        docker run -d \
+          --name nexus \
+          -p 8081:8081 \
+          -v nexus-data:/nexus-data \
+          -e INSTALL4J_ADD_VM_PARAMS="-Xms512m -Xmx1024m -XX:MaxDirectMemorySize=1024m" \
+          --restart unless-stopped \
+          sonatype/nexus3
+        '''
+    }
+}
+
 
         stage('Verify Nexus') {
             steps {
