@@ -24,13 +24,23 @@ pipeline {
 }
 
 
-        stage('Verify Nexus') {
-            steps {
-                sh '''
-                sleep 60
-                curl -I http://localhost:8081
-                '''
-            }
-        }
+       stage('Verify Nexus') {
+    steps {
+        sh '''
+        echo "Waiting for Nexus to be available..."
+        for i in {1..30}; do
+            if curl -s http://localhost:8081 > /dev/null; then
+                echo "Nexus is up!"
+                exit 0
+            fi
+            echo "Nexus not ready yet... retrying"
+            sleep 10
+        done
+        echo "Nexus failed to start"
+        exit 1
+        '''
+    }
+}
+
     }
 }
