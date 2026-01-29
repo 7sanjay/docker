@@ -55,7 +55,6 @@ pipeline {
                     -F "maven2.asset1=@$FILE" \
                     -F "maven2.asset1.extension=jar"
                     '''
-                     '''
                 }
             }
         }
