@@ -55,3 +55,18 @@ pipeline {
                     -F "maven2.asset1=@$FILE" \
                     -F "maven2.asset1.extension=jar"
                     '''
+                     '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build and Nexus upload completed successfully"
+        }
+        failure {
+            echo "❌ Pipeline failed"
+        }
+    }
+}
