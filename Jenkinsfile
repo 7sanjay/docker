@@ -22,9 +22,8 @@ pipeline {
         stage('Checkout from GitHub') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/7sanjay/docker.git',
+                    url: 'https://github.com/7sanjay/docker.git'
             }
-        }
         }
 
         stage('Maven Build') {
@@ -56,18 +55,3 @@ pipeline {
                     -F "maven2.asset1=@$FILE" \
                     -F "maven2.asset1.extension=jar"
                     '''
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Build and Nexus upload completed successfully"
-        }
-        failure {
-            echo "❌ Pipeline failed"
-        }
-    }
-}
-
