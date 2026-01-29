@@ -8,7 +8,7 @@ pipeline {
     environment {
         // Nexus
         NEXUS_URL  = "http://16.16.100.54:8081"
-        NEXUS_REPO = "maven-releases"
+        NEXUS_REPO = "mymaven"
 
         // Artifact details
         GROUP_ID    = "com.example.app"
