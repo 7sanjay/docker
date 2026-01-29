@@ -25,6 +25,7 @@ pipeline {
                     url: 'https://github.com/7sanjay/docker.git',
             }
         }
+        }
 
         stage('Maven Build') {
             steps {
