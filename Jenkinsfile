@@ -1,20 +1,41 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven9'
+    }
+
     environment {
+        // Nexus
         NEXUS_URL  = "http://16.16.100.54:8081"
         NEXUS_REPO = "maven-releases"
 
+        // Artifact details
         GROUP_ID    = "com.example.app"
         ARTIFACT_ID = "demo-app"
         VERSION     = "1.0.0"
-        FILE        = "demo-app-1.0.0.jar"
+        FILE        = "target/demo-app-1.0.0.jar"
     }
 
     stages {
+
+        stage('Checkout from GitHub') {
+            steps {
+                git branch: 'main',
+                    url: '',
+                    credentialsId: 'github-creds'
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
         stage('Verify Artifact') {
             steps {
-                sh 'ls -lh *.jar'
+                sh 'ls -lh target/*.jar'
             }
         }
 
@@ -39,4 +60,14 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            echo "✅ Build and Nexus upload completed successfully"
+        }
+        failure {
+            echo "❌ Pipeline failed"
+        }
+    }
 }
+
