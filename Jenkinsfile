@@ -22,8 +22,7 @@ pipeline {
         stage('Checkout from GitHub') {
             steps {
                 git branch: 'main',
-                    url: '',
-                    credentialsId: 'github-creds'
+                    url: 'https://github.com/7sanjay/docker.git',
             }
         }
 
