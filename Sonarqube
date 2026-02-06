@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+    environment {
+        SONAR_USER = 'ubuntu'               // SSH user
+        SONAR_HOST = '13.50.242.26'        // Ubuntu server IP
+        SONAR_INSTALL_DIR = '/opt/sonarqube'
+        SONAR_VERSION = '10.6.0.77686'
+    }
+    stages {
+        stage('Install SonarQube') {
+            steps {
+                sshagent(['jenkins-ssh-key']) {  // Credential ID for SSH key
+                    sh """
+                    ssh -o StrictHostKeyChecking=no $SONAR_USER@$SONAR_HOST << 'ENDSSH'
+                    sudo apt update
+                    sudo apt install -y openjdk-17-jdk unzip wget
+
+                    # Download SonarQube
+                    wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip -O /tmp/sonarqube.zip
+                    sudo unzip -o /tmp/sonarqube.zip -d /opt/
+                    sudo mv /opt/sonarqube-$SONAR_VERSION $SONAR_INSTALL_DIR
+
+                    # Set permissions
+                    sudo useradd -r -s /bin/false sonarqube || true
+                    sudo chown -R sonarqube:sonarqube $SONAR_INSTALL_DIR
+
+                    # Create systemd service
+                    sudo tee /etc/systemd/system/sonarqube.service > /dev/null <<EOF
+                    [Unit]
+                    Description=SonarQube service
+                    After=network.target
+
+                    [Service]
+                    Type=forking
+                    ExecStart=$SONAR_INSTALL_DIR/bin/linux-x86-64/sonar.sh start
+                    ExecStop=$SONAR_INSTALL_DIR/bin/linux-x86-64/sonar.sh stop
+                    User=sonarqube
+                    Group=sonarqube
+                    Restart=always
+                    LimitNOFILE=65536
+                    LimitNPROC=4096
+                    TimeoutStartSec=5
+
+                    [Install]
+                    WantedBy=multi-user.target
+                    EOF
+
+                    # Reload systemd and start SonarQube
+                    sudo systemctl daemon-reload
+                    sudo systemctl enable sonarqube
+                    sudo systemctl start sonarqube
+                    ENDSSH
+                    """
+                }
+            }
+        }
+    }
+}
